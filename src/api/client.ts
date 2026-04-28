@@ -162,6 +162,9 @@ export const api = {
     const response = await request("POST", path, { ...opts, body });
     return readJson<T>(response);
   },
+  async postRaw(path: string, body?: unknown, opts?: RequestOptions): Promise<Response> {
+    return request("POST", path, { ...opts, body });
+  },
   async patch<T>(path: string, body?: unknown, opts?: RequestOptions): Promise<T> {
     const response = await request("PATCH", path, { ...opts, body });
     return readJson<T>(response);

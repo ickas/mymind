@@ -71,7 +71,7 @@ export default function Command() {
     { keepPreviousData: true },
   );
 
-  const items = objects ?? [];
+  const items = Array.from(new Map((objects ?? []).map((o) => [o.id, o])).values());
   const loading = isLoading || viewModeLoading;
 
   if (viewMode === "list") {

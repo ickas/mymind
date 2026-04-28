@@ -11,7 +11,7 @@ import {
   Clipboard,
 } from "@raycast/api";
 import { showFailureToast, useCachedPromise } from "@raycast/utils";
-import { deleteObject, getObjectContent, MyMindObject } from "../api";
+import { deleteObject, loadCardMarkdown, MyMindObject } from "../api";
 import AddNote from "../add-a-new-note";
 import { EditCardForm } from "./EditCardForm";
 import { RelatedView } from "./RelatedView";
@@ -28,7 +28,7 @@ function safeHostname(url: string): string {
 
 function CardDetail({ object, onChange }: { object: MyMindObject; onChange?: () => void }) {
   const { isLoading, data: markdown = "" } = useCachedPromise(
-    (id: string) => getObjectContent(id, "markdown").catch(() => ""),
+    (id: string) => loadCardMarkdown(id).catch(() => ""),
     [object.id],
   );
   const heading = object.title ? `# ${object.title}\n\n` : "";
@@ -89,7 +89,7 @@ export function CardActions({
   const handleCopyMarkdown = async () => {
     const toast = await showToast({ style: Toast.Style.Animated, title: "Fetching content…" });
     try {
-      const markdown = await getObjectContent(object.id, "markdown");
+      const markdown = await loadCardMarkdown(object.id);
       await Clipboard.copy(markdown);
       toast.style = Toast.Style.Success;
       toast.title = "Copied as markdown";

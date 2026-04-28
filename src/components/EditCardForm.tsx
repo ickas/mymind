@@ -1,7 +1,7 @@
 import { Action, ActionPanel, Form, Toast, showToast, useNavigation } from "@raycast/api";
 import { showFailureToast, useCachedPromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
-import { getObjectContent, MyMindObject, updateObjectContent, updateObjectTitle } from "../api";
+import { loadCardMarkdown, MyMindObject, updateObjectContent, updateObjectTitle } from "../api";
 
 interface FormValues {
   title: string;
@@ -18,7 +18,7 @@ export function EditCardForm({ object, onSaved }: { object: MyMindObject; onSave
     isLoading,
     data: initialContent = "",
     error: loadError,
-  } = useCachedPromise((id: string) => getObjectContent(id, "markdown"), [object.id]);
+  } = useCachedPromise((id: string) => loadCardMarkdown(id), [object.id]);
 
   useEffect(() => {
     if (!isLoading && !loadError) setContent(initialContent);

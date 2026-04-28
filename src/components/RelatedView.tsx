@@ -46,6 +46,7 @@ export function RelatedView({ source }: { source: MyMindObject }) {
 
   const loading = isLoading || vmLoading;
   const navTitle = source.title ? `Related to "${source.title}"` : "Related";
+  const items = Array.from(new Map(objects.map((o) => [o.id, o])).values());
 
   if (error && isUnavailable(error)) {
     return (
@@ -58,7 +59,7 @@ export function RelatedView({ source }: { source: MyMindObject }) {
   if (viewMode === "list") {
     return (
       <List isLoading={loading} navigationTitle={navTitle}>
-        {objects.map((o) => (
+        {items.map((o) => (
           <ListCardItem key={o.id} object={o} onChange={revalidate} />
         ))}
       </List>
@@ -74,7 +75,7 @@ export function RelatedView({ source }: { source: MyMindObject }) {
       fit={Grid.Fit.Contain}
       inset={Grid.Inset.Medium}
     >
-      {objects.map((o) => (
+      {items.map((o) => (
         <GridCardItem key={o.id} object={o} onChange={revalidate} />
       ))}
     </Grid>

@@ -107,6 +107,25 @@ export async function getObjectContent(id: string, format: ContentFormat = "mark
   return response.text();
 }
 
+import { convert } from "./convert";
+import { MyMindApiError } from "./client";
+
+const CONTENT_GET_FALLBACK_STATUSES = new Set([404, 405, 406]);
+
+export async function loadCardMarkdown(id: string): Promise<string> {
+  try {
+    return await getObjectContent(id, "markdown");
+  } catch (err) {
+    if (!(err instanceof MyMindApiError) || !CONTENT_GET_FALLBACK_STATUSES.has(err.status)) {
+      throw err;
+    }
+  }
+  const obj = await getObject(id);
+  if (obj.content == null) return "";
+  if (typeof obj.content === "string") return obj.content;
+  return convert(JSON.stringify(obj.content), "application/prose+json", "text/markdown");
+}
+
 export async function updateObjectContent(
   id: string,
   content: string,
