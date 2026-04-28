@@ -1,8 +1,14 @@
 import { z } from "zod";
 
+const nullishString = () =>
+  z
+    .string()
+    .nullish()
+    .transform((v) => v ?? "");
+
 export const ObjectTagSchema = z.object({
   name: z.string(),
-  flags: z.number().optional(),
+  flags: z.number().nullish(),
 });
 export type ObjectTag = z.infer<typeof ObjectTagSchema>;
 
@@ -18,22 +24,29 @@ export type ObjectSource = z.infer<typeof ObjectSourceSchema>;
 
 export const ObjectNoteSchema = z.object({
   id: z.string(),
-  content: z.unknown().optional(),
+  content: z.unknown().nullish(),
 });
 export type ObjectNote = z.infer<typeof ObjectNoteSchema>;
 
 export const MyMindObjectSchema = z.object({
   id: z.string(),
-  title: z.string().optional().default(""),
-  content: z.unknown().optional(),
-  spaces: z.array(ObjectSpaceSchema).optional().default([]),
-  tags: z.array(ObjectTagSchema).optional().default([]),
-  notes: z.array(ObjectNoteSchema).optional(),
-  source: ObjectSourceSchema.optional(),
+  title: nullishString(),
+  entityType: z.string().nullish(),
+  content: z.unknown().nullish(),
+  spaces: z
+    .array(ObjectSpaceSchema)
+    .nullish()
+    .transform((v) => v ?? []),
+  tags: z
+    .array(ObjectTagSchema)
+    .nullish()
+    .transform((v) => v ?? []),
+  notes: z.array(ObjectNoteSchema).nullish(),
+  source: ObjectSourceSchema.nullish(),
   bumped: z.string(),
   created: z.string(),
   modified: z.string(),
-  deleted: z.string().optional(),
+  deleted: z.string().nullish(),
 });
 export type MyMindObject = z.infer<typeof MyMindObjectSchema>;
 
@@ -42,7 +55,7 @@ export const ObjectListSchema = z.array(MyMindObjectSchema);
 export const SearchResultSchema = z.object({
   id: z.string(),
   score: z.number(),
-  semanticScore: z.number().optional(),
+  semanticScore: z.number().nullish(),
 });
 export type SearchResult = z.infer<typeof SearchResultSchema>;
 export const SearchResultListSchema = z.array(SearchResultSchema);
@@ -54,16 +67,16 @@ export const SpaceObjectRefSchema = z.object({
 export const SpaceSchema = z.object({
   id: z.string(),
   name: z.string(),
-  color: z.string().optional(),
-  created: z.string().optional(),
-  objects: z.array(SpaceObjectRefSchema).optional(),
+  color: z.string().nullish(),
+  created: z.string().nullish(),
+  objects: z.array(SpaceObjectRefSchema).nullish(),
 });
 export type Space = z.infer<typeof SpaceSchema>;
 export const SpaceListSchema = z.array(SpaceSchema);
 
 export const TagSchema = z.object({
   name: z.string(),
-  flags: z.number().optional(),
+  flags: z.number().nullish(),
 });
 export type Tag = z.infer<typeof TagSchema>;
 export const TagListSchema = z.array(TagSchema);
