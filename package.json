@@ -57,11 +57,18 @@
   },
   "preferences": [
     {
-      "name": "apiToken",
+      "name": "keyId",
+      "type": "textfield",
+      "required": false,
+      "title": "Access Key ID",
+      "description": "The Key ID from your mymind access key. Generate one at https://access.mymind.com/api"
+    },
+    {
+      "name": "secretKey",
       "type": "password",
       "required": false,
-      "title": "API Token",
-      "description": "Your mymind API token. Generate one at https://access.mymind.com/api"
+      "title": "Access Key Secret",
+      "description": "The private key (HS256 secret) shown when you created the access key. Shown only once — keep it safe."
     },
     {
       "name": "jwt",

@@ -1,10 +1,13 @@
 import { getPreferenceValues } from "@raycast/api";
+import { createHmac } from "crypto";
 
 const BASE_URL = "https://api.mymind.com";
 const USER_AGENT = "raycast-mymind/2.0.0";
+const TOKEN_LIFETIME_SECONDS = 60;
 
 interface ApiPreferences {
-  apiToken?: string;
+  keyId?: string;
+  secretKey?: string;
 }
 
 export class MyMindApiError extends Error {
@@ -35,15 +38,35 @@ interface RequestOptions {
   signal?: AbortSignal;
 }
 
-function getApiToken(): string {
-  const { apiToken } = getPreferenceValues<ApiPreferences>();
-  if (!apiToken) {
-    throw new MyMindApiError("Missing API token. Set it in extension preferences.", 401);
+function getCredentials(): { keyId: string; secretKey: string } {
+  const { keyId, secretKey } = getPreferenceValues<ApiPreferences>();
+  if (!keyId || !secretKey) {
+    throw new MyMindApiError("Missing access key. Set Key ID and Secret in extension preferences.", 401);
   }
-  return apiToken;
+  return { keyId, secretKey };
 }
 
-function buildUrl(path: string, query?: RequestOptions["query"]): string {
+function base64url(input: Buffer | string): string {
+  const buf = typeof input === "string" ? Buffer.from(input, "utf8") : input;
+  return buf.toString("base64").replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+}
+
+function signRequestToken(path: string, method: string): string {
+  const { keyId, secretKey } = getCredentials();
+  const header = { alg: "HS256", kid: keyId, typ: "JWT" };
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    path,
+    method: method.toUpperCase(),
+    iat: now,
+    exp: now + TOKEN_LIFETIME_SECONDS,
+  };
+  const signingInput = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(payload))}`;
+  const signature = base64url(createHmac("sha256", secretKey).update(signingInput).digest());
+  return `${signingInput}.${signature}`;
+}
+
+function buildUrl(path: string, query?: RequestOptions["query"]): URL {
   const url = new URL(path, BASE_URL);
   if (query) {
     for (const [key, value] of Object.entries(query)) {
@@ -57,7 +80,7 @@ function buildUrl(path: string, query?: RequestOptions["query"]): string {
       }
     }
   }
-  return url.toString();
+  return url;
 }
 
 async function parseError(response: Response): Promise<MyMindApiError> {
@@ -80,8 +103,9 @@ async function parseError(response: Response): Promise<MyMindApiError> {
 }
 
 async function request(method: string, path: string, opts: RequestOptions = {}): Promise<Response> {
+  const url = buildUrl(path, opts.query);
   const headers: Record<string, string> = {
-    Authorization: `Bearer ${getApiToken()}`,
+    Authorization: `Bearer ${signRequestToken(url.pathname, method)}`,
     "User-Agent": USER_AGENT,
   };
   if (opts.accept) headers["Accept"] = opts.accept;
@@ -102,7 +126,7 @@ async function request(method: string, path: string, opts: RequestOptions = {}):
     }
   }
 
-  const response = await fetch(buildUrl(path, opts.query), {
+  const response = await fetch(url.toString(), {
     method,
     headers,
     body,

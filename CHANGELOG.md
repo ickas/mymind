@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-- Added Bearer-token authentication and a new API client targeting the official `api.mymind.com` API. Existing JWT/CID/authenticityToken preferences are kept for backwards compatibility and will be removed in a future version.
+- Added a new API client targeting the official `api.mymind.com` API. Authentication uses your mymind access key (Key ID + Secret) — every request is signed as a short-lived HS256 JWT. Existing JWT/CID/authenticityToken preferences are kept for backwards compatibility and will be removed in a future version.
 
 ## [Added Windows Support] - 2025-06-03
 
