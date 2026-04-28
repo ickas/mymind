@@ -6,8 +6,8 @@ import { GridCardItem, ListCardItem } from "./CardItem";
 type ViewMode = "grid" | "list";
 const VIEW_MODE_KEY = "mymind:viewMode";
 const RELATED_LIMIT = 50;
-const MASTERMIND_HINT =
-  "Find Related uses the /objects/:id/related endpoint, which requires the Mastermind tier on your mymind plan.";
+const UNAVAILABLE_HINT =
+  "GET /objects/:id/related returned 404. The endpoint requires Mastermind and may not yet be active on your account — contact mymind support if it stays unavailable.";
 
 async function loadRelated(id: string): Promise<MyMindObject[]> {
   const matches = await getRelated(id, RELATED_LIMIT);
@@ -16,7 +16,7 @@ async function loadRelated(id: string): Promise<MyMindObject[]> {
   return fetched.filter((o): o is MyMindObject => o !== null);
 }
 
-function isMastermindGate(error: unknown): boolean {
+function isUnavailable(error: unknown): boolean {
   return error instanceof MyMindApiError && (error.status === 404 || error.status === 403);
 }
 
@@ -30,7 +30,7 @@ export function RelatedView({ source }: { source: MyMindObject }) {
     revalidate,
   } = useCachedPromise(loadRelated, [source.id], {
     onError(err) {
-      if (isMastermindGate(err)) return;
+      if (isUnavailable(err)) return;
       showFailureToast(err, { title: "Failed to fetch related" });
     },
   });
@@ -38,10 +38,10 @@ export function RelatedView({ source }: { source: MyMindObject }) {
   const loading = isLoading || vmLoading;
   const navTitle = source.title ? `Related to "${source.title}"` : "Related";
 
-  if (error && isMastermindGate(error)) {
+  if (error && isUnavailable(error)) {
     return (
       <List navigationTitle={navTitle}>
-        <List.EmptyView icon={Icon.Stars} title="Mastermind required" description={MASTERMIND_HINT} />
+        <List.EmptyView icon={Icon.Stars} title="Find Related is unavailable" description={UNAVAILABLE_HINT} />
       </List>
     );
   }
