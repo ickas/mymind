@@ -38,7 +38,9 @@ interface RequestOptions {
 }
 
 function getCredentials(): { keyId: string; secretKey: string } {
-  const { keyId, secretKey } = getPreferenceValues<ApiPreferences>();
+  const prefs = getPreferenceValues<ApiPreferences>();
+  const keyId = prefs.keyId?.trim();
+  const secretKey = prefs.secretKey?.trim();
   if (!keyId || !secretKey) {
     throw new MyMindApiError("Missing access key. Set Key ID and Secret in extension preferences.", 401);
   }
