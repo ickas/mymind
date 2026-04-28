@@ -3,6 +3,7 @@ import { createHmac } from "crypto";
 
 const BASE_URL = "https://api.mymind.com";
 const USER_AGENT = "raycast-mymind/2.0.0";
+const TOKEN_LIFETIME_SECONDS = 60;
 
 interface ApiPreferences {
   keyId?: string;
@@ -55,8 +56,16 @@ function decodeSecret(secret: string): Buffer {
 
 function signRequestToken(path: string, method: string): string {
   const { keyId, secretKey } = getCredentials();
+  const now = Math.floor(Date.now() / 1000);
   const header = Buffer.from(JSON.stringify({ alg: "HS256", kid: keyId })).toString("base64");
-  const payload = Buffer.from(JSON.stringify({ method: method.toUpperCase(), path })).toString("base64");
+  const payload = Buffer.from(
+    JSON.stringify({
+      method: method.toUpperCase(),
+      path,
+      iat: now,
+      exp: now + TOKEN_LIFETIME_SECONDS,
+    }),
+  ).toString("base64");
   const data = `${header}.${payload}`;
   const sig = createHmac("sha256", decodeSecret(secretKey)).update(data).digest("base64url");
   return `${data}.${sig}`;
