@@ -58,7 +58,14 @@ export const SearchResultSchema = z.object({
   semanticScore: z.number().nullish(),
 });
 export type SearchResult = z.infer<typeof SearchResultSchema>;
-export const SearchResultListSchema = z.array(SearchResultSchema);
+
+export const SearchResponseSchema = z.object({
+  elapsed: z.number().nullish(),
+  count: z.number().nullish(),
+  query: z.string().nullish(),
+  matches: z.array(SearchResultSchema),
+});
+export type SearchResponse = z.infer<typeof SearchResponseSchema>;
 
 export const SpaceObjectRefSchema = z.object({
   id: z.string(),

@@ -1,5 +1,5 @@
 import { api } from "./client";
-import { SearchResult, SearchResultListSchema } from "./schemas";
+import { SearchResult, SearchResponseSchema } from "./schemas";
 
 export interface SearchOptions {
   q: string;
@@ -21,5 +21,5 @@ export async function search(opts: SearchOptions): Promise<SearchResult[]> {
     },
     signal: opts.signal,
   });
-  return SearchResultListSchema.parse(data);
+  return SearchResponseSchema.parse(data).matches;
 }
