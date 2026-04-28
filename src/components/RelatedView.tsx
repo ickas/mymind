@@ -9,11 +9,20 @@ const RELATED_LIMIT = 50;
 const UNAVAILABLE_HINT =
   "GET /objects/:id/related returned 404. The endpoint requires Mastermind and may not yet be active on your account — contact mymind support if it stays unavailable.";
 
+function dedupeById(objects: MyMindObject[]): MyMindObject[] {
+  const seen = new Set<string>();
+  return objects.filter((o) => {
+    if (seen.has(o.id)) return false;
+    seen.add(o.id);
+    return true;
+  });
+}
+
 async function loadRelated(id: string): Promise<MyMindObject[]> {
   const matches = await getRelated(id, RELATED_LIMIT);
   if (matches.length === 0) return [];
   const fetched = await Promise.all(matches.map((m) => getObject(m.id).catch(() => null)));
-  return fetched.filter((o): o is MyMindObject => o !== null);
+  return dedupeById(fetched.filter((o): o is MyMindObject => o !== null));
 }
 
 function isUnavailable(error: unknown): boolean {

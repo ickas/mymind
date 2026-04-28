@@ -14,14 +14,21 @@ export function EditCardForm({ object, onSaved }: { object: MyMindObject; onSave
   const [title, setTitle] = useState(object.title || "");
   const [submitting, setSubmitting] = useState(false);
 
-  const { isLoading, data: initialContent = "" } = useCachedPromise(
-    (id: string) => getObjectContent(id, "markdown").catch(() => ""),
-    [object.id],
-  );
+  const {
+    isLoading,
+    data: initialContent = "",
+    error: loadError,
+  } = useCachedPromise((id: string) => getObjectContent(id, "markdown"), [object.id]);
 
   useEffect(() => {
-    if (!isLoading) setContent(initialContent);
-  }, [isLoading, initialContent]);
+    if (!isLoading && !loadError) setContent(initialContent);
+  }, [isLoading, initialContent, loadError]);
+
+  useEffect(() => {
+    if (loadError) {
+      showFailureToast(loadError, { title: "Couldn't load existing content" });
+    }
+  }, [loadError]);
 
   const handleSubmit = async (values: FormValues) => {
     setSubmitting(true);

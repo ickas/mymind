@@ -9,10 +9,19 @@ const VIEW_MODE_KEY = "mymind:viewMode";
 const SEARCH_LIMIT = 50;
 const BROWSE_LIMIT = 1000;
 
+function dedupeById(objects: MyMindObject[]): MyMindObject[] {
+  const seen = new Set<string>();
+  return objects.filter((o) => {
+    if (seen.has(o.id)) return false;
+    seen.add(o.id);
+    return true;
+  });
+}
+
 async function loadObjects(query: string): Promise<MyMindObject[]> {
   const trimmed = query.trim();
   if (!trimmed) {
-    return listObjects({ limit: BROWSE_LIMIT });
+    return dedupeById(await listObjects({ limit: BROWSE_LIMIT }));
   }
   const matches = await search({
     q: trimmed,
@@ -22,7 +31,7 @@ async function loadObjects(query: string): Promise<MyMindObject[]> {
   });
   if (matches.length === 0) return [];
   const fetched = await Promise.all(matches.map((m) => getObject(m.id).catch(() => null)));
-  return fetched.filter((o): o is MyMindObject => o !== null);
+  return dedupeById(fetched.filter((o): o is MyMindObject => o !== null));
 }
 
 export default function Command() {
