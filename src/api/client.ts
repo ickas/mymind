@@ -3,7 +3,6 @@ import { createHmac } from "crypto";
 
 const BASE_URL = "https://api.mymind.com";
 const USER_AGENT = "raycast-mymind/2.0.0";
-const TOKEN_LIFETIME_SECONDS = 60;
 
 interface ApiPreferences {
   keyId?: string;
@@ -51,18 +50,18 @@ function base64url(input: Buffer | string): string {
   return buf.toString("base64").replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
 }
 
+function decodeSecret(secret: string): Buffer {
+  const normalized = secret.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
+  return Buffer.from(padded, "base64");
+}
+
 function signRequestToken(path: string, method: string): string {
   const { keyId, secretKey } = getCredentials();
   const header = { alg: "HS256", kid: keyId, typ: "JWT" };
-  const now = Math.floor(Date.now() / 1000);
-  const payload = {
-    path,
-    method: method.toUpperCase(),
-    iat: now,
-    exp: now + TOKEN_LIFETIME_SECONDS,
-  };
+  const payload = { path, method: method.toUpperCase() };
   const signingInput = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(payload))}`;
-  const signature = base64url(createHmac("sha256", secretKey).update(signingInput).digest());
+  const signature = base64url(createHmac("sha256", decodeSecret(secretKey)).update(signingInput).digest());
   return `${signingInput}.${signature}`;
 }
 
