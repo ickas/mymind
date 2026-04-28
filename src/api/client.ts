@@ -45,11 +45,6 @@ function getCredentials(): { keyId: string; secretKey: string } {
   return { keyId, secretKey };
 }
 
-function base64url(input: Buffer | string): string {
-  const buf = typeof input === "string" ? Buffer.from(input, "utf8") : input;
-  return buf.toString("base64").replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
-}
-
 function decodeSecret(secret: string): Buffer {
   const normalized = secret.replace(/-/g, "+").replace(/_/g, "/");
   const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
@@ -58,11 +53,11 @@ function decodeSecret(secret: string): Buffer {
 
 function signRequestToken(path: string, method: string): string {
   const { keyId, secretKey } = getCredentials();
-  const header = { alg: "HS256", kid: keyId, typ: "JWT" };
-  const payload = { path, method: method.toUpperCase() };
-  const signingInput = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(payload))}`;
-  const signature = base64url(createHmac("sha256", decodeSecret(secretKey)).update(signingInput).digest());
-  return `${signingInput}.${signature}`;
+  const header = Buffer.from(JSON.stringify({ alg: "HS256", kid: keyId })).toString("base64");
+  const payload = Buffer.from(JSON.stringify({ method: method.toUpperCase(), path })).toString("base64");
+  const data = `${header}.${payload}`;
+  const sig = createHmac("sha256", decodeSecret(secretKey)).update(data).digest("base64url");
+  return `${data}.${sig}`;
 }
 
 function buildUrl(path: string, query?: RequestOptions["query"]): URL {
