@@ -1,22 +1,14 @@
 import { Grid, List, showToast, Toast, openExtensionPreferences } from "@raycast/api";
 import { useState } from "react";
 import { showFailureToast, useCachedPromise, useLocalStorage, getFavicon } from "@raycast/utils";
-import { listObjects, MyMindApiError, MyMindObject } from "./api";
+import { listObjects, search, getObject, MyMindApiError, MyMindObject } from "./api";
 import { CardActions } from "./components/CardAction";
 
 type ViewMode = "grid" | "list";
 const VIEW_MODE_KEY = "mymind:viewMode";
 const FALLBACK_ICON = "../assets/mymind-logo.svg";
-
-function matchesQuery(obj: MyMindObject, query: string): boolean {
-  if (!query) return true;
-  const q = query.toLowerCase();
-  return (
-    obj.title.toLowerCase().includes(q) ||
-    obj.tags.some((tag) => tag.name.toLowerCase().includes(q)) ||
-    (obj.source?.url.toLowerCase().includes(q) ?? false)
-  );
-}
+const SEARCH_LIMIT = 50;
+const BROWSE_LIMIT = 1000;
 
 function itemIcon(obj: MyMindObject) {
   return obj.source?.url ? getFavicon(obj.source.url) : FALLBACK_ICON;
@@ -29,6 +21,22 @@ function itemSubtitle(obj: MyMindObject): string | undefined {
   } catch {
     return obj.source.url;
   }
+}
+
+async function loadObjects(query: string): Promise<MyMindObject[]> {
+  const trimmed = query.trim();
+  if (!trimmed) {
+    return listObjects({ limit: BROWSE_LIMIT });
+  }
+  const matches = await search({
+    q: trimmed,
+    limit: SEARCH_LIMIT,
+    semantic: true,
+    rerank: true,
+  });
+  if (matches.length === 0) return [];
+  const fetched = await Promise.all(matches.map((m) => getObject(m.id).catch(() => null)));
+  return fetched.filter((o): o is MyMindObject => o !== null);
 }
 
 export default function Command() {
@@ -44,9 +52,9 @@ export default function Command() {
     data: objects,
     revalidate,
   } = useCachedPromise(
-    async () => {
+    async (query: string) => {
       try {
-        return await listObjects({ limit: 1000 });
+        return await loadObjects(query);
       } catch (error) {
         if (error instanceof MyMindApiError && error.isUnauthorized) {
           showToast({
@@ -60,15 +68,15 @@ export default function Command() {
           });
           return [];
         }
-        showFailureToast(error, { title: "Failed to fetch your mind" });
+        showFailureToast(error, { title: "Search failed" });
         return [];
       }
     },
-    [],
+    [searchText],
     { keepPreviousData: true },
   );
 
-  const filtered = (objects ?? []).filter((obj) => matchesQuery(obj, searchText));
+  const items = objects ?? [];
   const loading = isLoading || viewModeLoading;
 
   if (viewMode === "list") {
@@ -76,7 +84,7 @@ export default function Command() {
       <List
         isLoading={loading}
         onSearchTextChange={setSearchText}
-        searchBarPlaceholder="Search your mind..."
+        searchBarPlaceholder="Search your mind…"
         searchBarAccessory={
           <List.Dropdown tooltip="View" value={viewMode} onChange={(v) => setViewMode(v as ViewMode)}>
             <List.Dropdown.Item title="Grid" value="grid" />
@@ -85,7 +93,7 @@ export default function Command() {
         }
         throttle
       >
-        {filtered.map((obj) => (
+        {items.map((obj) => (
           <List.Item
             key={obj.id}
             icon={itemIcon(obj)}
@@ -103,7 +111,7 @@ export default function Command() {
     <Grid
       isLoading={loading}
       onSearchTextChange={setSearchText}
-      searchBarPlaceholder="Search your mind..."
+      searchBarPlaceholder="Search your mind…"
       columns={5}
       aspectRatio="3/2"
       fit={Grid.Fit.Contain}
@@ -116,7 +124,7 @@ export default function Command() {
       }
       throttle
     >
-      {filtered.map((obj) => (
+      {items.map((obj) => (
         <Grid.Item
           key={obj.id}
           content={itemIcon(obj)}
