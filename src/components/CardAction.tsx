@@ -13,6 +13,7 @@ import {
 import { showFailureToast, useCachedPromise } from "@raycast/utils";
 import { deleteObject, getObjectContent, MyMindObject } from "../api";
 import AddNote from "../add-a-new-note";
+import { RelatedView } from "./RelatedView";
 
 const MYMIND_WEB_URL = "https://access.mymind.com/everything";
 
@@ -107,6 +108,12 @@ export function CardActions({
             target={<CardDetail object={object} onChange={onChange} />}
           />
         )}
+        <Action.Push
+          title="Find Related"
+          icon={Icon.Network}
+          target={<RelatedView source={object} />}
+          shortcut={{ modifiers: ["cmd", "shift"], key: "r" }}
+        />
         {object.source?.url && <Action.OpenInBrowser url={object.source.url} />}
         <Action.OpenInBrowser
           title="Open in Mymind"

@@ -1,5 +1,5 @@
 import { api } from "./client";
-import { MyMindObject, MyMindObjectSchema, ObjectListSchema, RelatedMatchListSchema, RelatedMatch } from "./schemas";
+import { MyMindObject, MyMindObjectSchema, ObjectListSchema, RelatedResponseSchema, RelatedMatch } from "./schemas";
 
 export interface ListObjectsOptions {
   id?: string;
@@ -25,7 +25,8 @@ export async function getRelated(id: string, limit = 50, signal?: AbortSignal): 
     query: { limit },
     signal,
   });
-  return RelatedMatchListSchema.parse(data);
+  const parsed = RelatedResponseSchema.parse(data);
+  return Array.isArray(parsed) ? parsed : parsed.matches;
 }
 
 interface CreateBase {

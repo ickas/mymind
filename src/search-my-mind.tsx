@@ -1,27 +1,13 @@
 import { Grid, List, showToast, Toast, openExtensionPreferences } from "@raycast/api";
 import { useState } from "react";
-import { showFailureToast, useCachedPromise, useLocalStorage, getFavicon } from "@raycast/utils";
+import { showFailureToast, useCachedPromise, useLocalStorage } from "@raycast/utils";
 import { listObjects, search, getObject, MyMindApiError, MyMindObject } from "./api";
-import { CardActions } from "./components/CardAction";
+import { GridCardItem, ListCardItem } from "./components/CardItem";
 
 type ViewMode = "grid" | "list";
 const VIEW_MODE_KEY = "mymind:viewMode";
-const FALLBACK_ICON = "../assets/mymind-logo.svg";
 const SEARCH_LIMIT = 50;
 const BROWSE_LIMIT = 1000;
-
-function itemIcon(obj: MyMindObject) {
-  return obj.source?.url ? getFavicon(obj.source.url) : FALLBACK_ICON;
-}
-
-function itemSubtitle(obj: MyMindObject): string | undefined {
-  if (!obj.source?.url) return undefined;
-  try {
-    return new URL(obj.source.url).hostname;
-  } catch {
-    return obj.source.url;
-  }
-}
 
 async function loadObjects(query: string): Promise<MyMindObject[]> {
   const trimmed = query.trim();
@@ -94,14 +80,7 @@ export default function Command() {
         throttle
       >
         {items.map((obj) => (
-          <List.Item
-            key={obj.id}
-            icon={itemIcon(obj)}
-            title={obj.title || "Untitled"}
-            subtitle={obj.source?.url}
-            accessories={[{ date: new Date(obj.modified) }]}
-            actions={<CardActions object={obj} onChange={revalidate} />}
-          />
+          <ListCardItem key={obj.id} object={obj} onChange={revalidate} />
         ))}
       </List>
     );
@@ -125,13 +104,7 @@ export default function Command() {
       throttle
     >
       {items.map((obj) => (
-        <Grid.Item
-          key={obj.id}
-          content={itemIcon(obj)}
-          title={obj.title || "Untitled"}
-          subtitle={itemSubtitle(obj)}
-          actions={<CardActions object={obj} onChange={revalidate} />}
-        />
+        <GridCardItem key={obj.id} object={obj} onChange={revalidate} />
       ))}
     </Grid>
   );

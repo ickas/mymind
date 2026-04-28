@@ -93,4 +93,8 @@ export const RelatedMatchSchema = z.object({
   score: z.number(),
 });
 export type RelatedMatch = z.infer<typeof RelatedMatchSchema>;
-export const RelatedMatchListSchema = z.array(RelatedMatchSchema);
+
+export const RelatedResponseSchema = z.union([
+  z.array(RelatedMatchSchema),
+  z.object({ matches: z.array(RelatedMatchSchema) }).loose(),
+]);
