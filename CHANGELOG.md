@@ -2,7 +2,9 @@
 
 ## [Unreleased]
 
-- Added a new API client targeting the official `api.mymind.com` API. Authentication uses your mymind access key (Key ID + Secret) — every request is signed as a short-lived HS256 JWT. Existing JWT/CID/authenticityToken preferences are kept for backwards compatibility and will be removed in a future version.
+- **Breaking:** Switched authentication and all endpoints to the official `api.mymind.com` API. Every request is now signed as a short-lived HS256 JWT using a mymind access key (Key ID + Secret). Generate a key at https://access.mymind.com/api and set it in extension preferences.
+- Migrated `Search My Mind` and `Add a New Note` to the new API. Removed the legacy JWT / CID / Authenticity Token preferences.
+- Removed the `node-fetch` dependency in favor of the global `fetch`.
 
 ## [Added Windows Support] - 2025-06-03
 

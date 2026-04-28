@@ -36,7 +36,6 @@
   "dependencies": {
     "@raycast/api": "^1.91.2",
     "@raycast/utils": "^1.17.0",
-    "node-fetch": "^3.3.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -59,37 +58,16 @@
     {
       "name": "keyId",
       "type": "textfield",
-      "required": false,
+      "required": true,
       "title": "Access Key ID",
       "description": "The Key ID from your mymind access key. Generate one at https://access.mymind.com/api"
     },
     {
       "name": "secretKey",
       "type": "password",
-      "required": false,
+      "required": true,
       "title": "Access Key Secret",
       "description": "The private key (HS256 secret) shown when you created the access key. Shown only once — keep it safe."
-    },
-    {
-      "name": "jwt",
-      "type": "password",
-      "required": false,
-      "title": "JWT Token (legacy)",
-      "description": "Legacy. Will be removed in a future version — use API Token instead."
-    },
-    {
-      "name": "cid",
-      "type": "password",
-      "required": false,
-      "title": "CID (legacy)",
-      "description": "Legacy. Will be removed in a future version — use API Token instead."
-    },
-    {
-      "name": "authenticityToken",
-      "type": "password",
-      "required": false,
-      "title": "Authenticity Token (legacy)",
-      "description": "Legacy. Will be removed in a future version — use API Token instead."
     }
   ]
 }

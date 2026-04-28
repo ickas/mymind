@@ -1,8 +1,7 @@
 import { List, showToast, Toast, openExtensionPreferences } from "@raycast/api";
 import { useState } from "react";
-import { fetchMyMindCards } from "./utils";
-import { showFailureToast, useCachedPromise } from "@raycast/utils";
-import { getFavicon } from "@raycast/utils";
+import { showFailureToast, useCachedPromise, getFavicon } from "@raycast/utils";
+import { listObjects, MyMindApiError } from "./api";
 import { CardActions } from "./components/CardAction";
 
 export default function Command() {
@@ -10,65 +9,53 @@ export default function Command() {
 
   const {
     isLoading,
-    data: cards,
+    data: objects,
     revalidate,
   } = useCachedPromise(
     async () => {
       try {
-        return await fetchMyMindCards();
+        return await listObjects({ limit: 1000 });
       } catch (error) {
-        // Check if error is related to authentication
-        if (error instanceof Error && error.message.toLowerCase().includes("unauthorized")) {
+        if (error instanceof MyMindApiError && error.isUnauthorized) {
           showToast({
             style: Toast.Style.Failure,
-            title: "Authentication Required",
-            message: "Please update your API token in extension preferences",
+            title: "Authentication required",
+            message: "Set your access key in extension preferences",
             primaryAction: {
               title: "Open Extension Preferences",
-              onAction: () => {
-                openExtensionPreferences();
-              },
+              onAction: openExtensionPreferences,
             },
           });
-          return {};
+          return [];
         }
-
-        showFailureToast({
-          title: "Failed to fetch cards",
-          message: String(error),
-        });
-        return {};
+        showFailureToast(error, { title: "Failed to fetch your mind" });
+        return [];
       }
     },
     [],
-    {
-      keepPreviousData: true,
-    },
+    { keepPreviousData: true },
   );
 
-  // Filter cards based on search text and tags
-  const filteredCards = Object.entries(cards || {}).filter(
-    ([, card]) =>
-      card.title?.toLowerCase().includes(searchText.toLowerCase()) ||
-      card.description?.toLowerCase().includes(searchText.toLowerCase()) ||
-      card.tags?.some((tag) => tag.name.toLowerCase().includes(searchText.toLowerCase())),
-  );
+  const filtered = (objects ?? []).filter((obj) => {
+    if (!searchText) return true;
+    const q = searchText.toLowerCase();
+    return (
+      obj.title?.toLowerCase().includes(q) ||
+      obj.tags?.some((tag) => tag.name.toLowerCase().includes(q)) ||
+      obj.source?.url.toLowerCase().includes(q)
+    );
+  });
 
   return (
-    <List
-      isLoading={isLoading}
-      onSearchTextChange={setSearchText}
-      searchBarPlaceholder="Search your mind cards..."
-      throttle
-    >
-      {filteredCards.map(([, card]) => (
+    <List isLoading={isLoading} onSearchTextChange={setSearchText} searchBarPlaceholder="Search your mind..." throttle>
+      {filtered.map((obj) => (
         <List.Item
-          key={card.slug}
-          icon={card.source?.url ? getFavicon(card.source.url) : "../assets/mymind-logo.svg"}
-          title={card.title || "Untitled"}
-          subtitle={card.description}
-          accessories={[{ date: new Date(card.modified) }]}
-          actions={<CardActions card={card} onDelete={revalidate} />}
+          key={obj.id}
+          icon={obj.source?.url ? getFavicon(obj.source.url) : "../assets/mymind-logo.svg"}
+          title={obj.title || "Untitled"}
+          subtitle={obj.source?.url}
+          accessories={[{ date: new Date(obj.modified) }]}
+          actions={<CardActions object={obj} onChange={revalidate} />}
         />
       ))}
     </List>
