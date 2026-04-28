@@ -110,7 +110,7 @@ async function request(method: string, path: string, opts: RequestOptions = {}):
   };
   if (opts.accept) headers["Accept"] = opts.accept;
 
-  let body: BodyInit | undefined;
+  let body: RequestInit["body"] | undefined;
   if (opts.body !== undefined && opts.body !== null) {
     if (opts.body instanceof FormData) {
       body = opts.body;
@@ -118,7 +118,7 @@ async function request(method: string, path: string, opts: RequestOptions = {}):
       body = opts.body;
       headers["Content-Type"] = opts.contentType ?? "text/plain";
     } else if (opts.body instanceof ArrayBuffer || ArrayBuffer.isView(opts.body)) {
-      body = opts.body as BodyInit;
+      body = opts.body as RequestInit["body"];
       headers["Content-Type"] = opts.contentType ?? "application/octet-stream";
     } else {
       body = JSON.stringify(opts.body);
