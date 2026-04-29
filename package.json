@@ -89,6 +89,33 @@
       ]
     }
   ],
+  "tools": [
+    {
+      "name": "search-mymind",
+      "title": "Search mymind",
+      "description": "Search the user's mymind library by query, returning the top matches with title, source URL, tags, and modified date."
+    },
+    {
+      "name": "save-url-to-mymind",
+      "title": "Save URL to mymind",
+      "description": "Save a remote URL to mymind. mymind fetches and enriches the page automatically."
+    },
+    {
+      "name": "save-note-to-mymind",
+      "title": "Save Note to mymind",
+      "description": "Save a markdown note to mymind."
+    },
+    {
+      "name": "list-mymind-tags",
+      "title": "List mymind Tags",
+      "description": "List the user's mymind tags, most recently used first."
+    },
+    {
+      "name": "list-mymind-spaces",
+      "title": "List mymind Spaces",
+      "description": "List the user's mymind spaces with names, colors, and object counts."
+    }
+  ],
   "dependencies": {
     "@raycast/api": "^1.104.12",
     "@raycast/utils": "^2.2.4",
