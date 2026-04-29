@@ -150,30 +150,36 @@ async function readJson<T>(response: Response): Promise<T> {
   return text ? (JSON.parse(text) as T) : (undefined as T);
 }
 
+const JSON_ACCEPT = "application/json";
+
+function withJsonAccept(opts?: RequestOptions): RequestOptions {
+  return { ...opts, accept: opts?.accept ?? JSON_ACCEPT };
+}
+
 export const api = {
   async get<T>(path: string, opts?: RequestOptions): Promise<T> {
-    const response = await request("GET", path, opts);
+    const response = await request("GET", path, withJsonAccept(opts));
     return readJson<T>(response);
   },
   async getRaw(path: string, opts?: RequestOptions): Promise<Response> {
     return request("GET", path, opts);
   },
   async post<T>(path: string, body?: unknown, opts?: RequestOptions): Promise<T> {
-    const response = await request("POST", path, { ...opts, body });
+    const response = await request("POST", path, { ...withJsonAccept(opts), body });
     return readJson<T>(response);
   },
   async postRaw(path: string, body?: unknown, opts?: RequestOptions): Promise<Response> {
     return request("POST", path, { ...opts, body });
   },
   async patch<T>(path: string, body?: unknown, opts?: RequestOptions): Promise<T> {
-    const response = await request("PATCH", path, { ...opts, body });
+    const response = await request("PATCH", path, { ...withJsonAccept(opts), body });
     return readJson<T>(response);
   },
   async put<T>(path: string, body?: unknown, opts?: RequestOptions): Promise<T> {
-    const response = await request("PUT", path, { ...opts, body });
+    const response = await request("PUT", path, { ...withJsonAccept(opts), body });
     return readJson<T>(response);
   },
   async delete(path: string, opts?: RequestOptions): Promise<void> {
-    await request("DELETE", path, opts);
+    await request("DELETE", path, withJsonAccept(opts));
   },
 };
