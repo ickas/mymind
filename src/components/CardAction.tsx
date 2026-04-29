@@ -27,11 +27,17 @@ function safeHostname(url: string): string {
 }
 
 function CardDetail({ object, onChange }: { object: MyMindObject; onChange?: () => void }) {
-  const { isLoading, data: markdown = "" } = useCachedPromise(
-    (id: string) => loadCardMarkdown(id).catch(() => ""),
-    [object.id],
-  );
+  const {
+    isLoading,
+    data: markdown = "",
+    revalidate,
+  } = useCachedPromise((id: string) => loadCardMarkdown(id).catch(() => ""), [object.id]);
   const heading = object.title ? `# ${object.title}\n\n` : "";
+
+  const handleChange = () => {
+    revalidate();
+    onChange?.();
+  };
 
   return (
     <Detail
@@ -54,7 +60,7 @@ function CardDetail({ object, onChange }: { object: MyMindObject; onChange?: () 
           )}
         </Detail.Metadata>
       }
-      actions={<CardActions object={object} onChange={onChange} hideDetailAction />}
+      actions={<CardActions object={object} onChange={handleChange} hideDetailAction />}
     />
   );
 }
