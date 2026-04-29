@@ -1,5 +1,20 @@
 import { z } from "zod";
 
+export function unwrapList<T>(
+  itemSchema: z.ZodType<T>,
+  data: unknown,
+  envelopeKeys: string[] = ["items", "matches", "results", "data"],
+): T[] {
+  if (Array.isArray(data)) return z.array(itemSchema).parse(data);
+  if (data && typeof data === "object") {
+    for (const key of envelopeKeys) {
+      const value = (data as Record<string, unknown>)[key];
+      if (Array.isArray(value)) return z.array(itemSchema).parse(value);
+    }
+  }
+  throw new Error("Unrecognized list response shape");
+}
+
 const nullishString = () =>
   z
     .string()

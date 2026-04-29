@@ -31,6 +31,20 @@
       "subtitle": "mymind",
       "description": "Adds a new note to mymind",
       "mode": "view"
+    },
+    {
+      "name": "browse-spaces",
+      "title": "Browse Spaces",
+      "subtitle": "mymind",
+      "description": "Browse your mymind spaces and the cards inside them",
+      "mode": "view"
+    },
+    {
+      "name": "browse-tags",
+      "title": "Browse Tags",
+      "subtitle": "mymind",
+      "description": "Browse your mymind tags and the cards under each one",
+      "mode": "view"
     }
   ],
   "dependencies": {

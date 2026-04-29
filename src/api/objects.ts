@@ -2,14 +2,16 @@ import { api } from "./client";
 import { MyMindObject, MyMindObjectSchema, ObjectListSchema, RelatedResponseSchema, RelatedMatch } from "./schemas";
 
 export interface ListObjectsOptions {
-  id?: string;
+  id?: string | string[];
+  q?: string;
+  contentAs?: string;
   limit?: number;
   signal?: AbortSignal;
 }
 
 export async function listObjects(opts: ListObjectsOptions = {}): Promise<MyMindObject[]> {
   const data = await api.get<unknown>("/objects", {
-    query: { id: opts.id, limit: opts.limit },
+    query: { id: opts.id, q: opts.q, contentAs: opts.contentAs, limit: opts.limit },
     signal: opts.signal,
   });
   return ObjectListSchema.parse(data);
