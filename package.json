@@ -60,6 +60,33 @@
       "description": "Shows today's saves in the menu bar with a quick-capture button.",
       "mode": "menu-bar",
       "interval": "10m"
+    },
+    {
+      "name": "save-url-to-mymind",
+      "title": "Quick Save URL",
+      "subtitle": "mymind",
+      "description": "Save a URL to mymind in one shot. Designed as a target for Raycast Quicklinks and external deeplinks.",
+      "mode": "no-view",
+      "arguments": [
+        {
+          "name": "url",
+          "placeholder": "https://…",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "title",
+          "placeholder": "Title (optional)",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "tags",
+          "placeholder": "tag1, tag2 (optional)",
+          "type": "text",
+          "required": false
+        }
+      ]
     }
   ],
   "dependencies": {
