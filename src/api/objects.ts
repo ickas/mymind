@@ -17,6 +17,18 @@ export async function listObjects(opts: ListObjectsOptions = {}): Promise<MyMind
   return ObjectListSchema.parse(data);
 }
 
+const OBJECTS_BY_IDS_BATCH = 25;
+
+export async function getObjectsByIds(ids: string[], signal?: AbortSignal): Promise<MyMindObject[]> {
+  if (ids.length === 0) return [];
+  const chunks: string[][] = [];
+  for (let i = 0; i < ids.length; i += OBJECTS_BY_IDS_BATCH) {
+    chunks.push(ids.slice(i, i + OBJECTS_BY_IDS_BATCH));
+  }
+  const batches = await Promise.all(chunks.map((chunk) => listObjects({ id: chunk, limit: chunk.length, signal })));
+  return batches.flat();
+}
+
 export async function getObject(id: string, signal?: AbortSignal): Promise<MyMindObject> {
   const data = await api.get<unknown>(`/objects/${encodeURIComponent(id)}`, { signal });
   return MyMindObjectSchema.parse(data);
