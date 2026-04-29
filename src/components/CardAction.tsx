@@ -52,8 +52,8 @@ function CardDetail({ object, onChange }: { object: MyMindObject; onChange?: () 
           )}
           {object.tags.length > 0 && (
             <Detail.Metadata.TagList title="Tags">
-              {object.tags.map((t) => (
-                <Detail.Metadata.TagList.Item key={t.name} text={t.name} />
+              {Array.from(new Set(object.tags.map((t) => t.name))).map((name) => (
+                <Detail.Metadata.TagList.Item key={name} text={name} />
               ))}
             </Detail.Metadata.TagList>
           )}
