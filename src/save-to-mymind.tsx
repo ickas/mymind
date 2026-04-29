@@ -86,9 +86,16 @@ export default function Command() {
       if (cancelled) return;
 
       const finderItems = finderRes.status === "fulfilled" ? finderRes.value : [];
-      const selected = selectedRes.status === "fulfilled" ? selectedRes.value?.trim() : "";
+      const rawSelected = selectedRes.status === "fulfilled" ? selectedRes.value?.trim() : "";
       const tab = tabRes.status === "fulfilled" ? tabRes.value : null;
       const clip = clipRes.status === "fulfilled" ? clipRes.value?.trim() : "";
+
+      // Browsers sometimes return the entire focused element's contents when
+      // nothing is explicitly selected. Treat overly long values as garbage —
+      // a real text selection a user would intentionally save is a quote, not
+      // a full page dump.
+      const SELECTION_MAX_CHARS = 5000;
+      const selected = rawSelected && rawSelected.length <= SELECTION_MAX_CHARS ? rawSelected : "";
 
       // Priority: Finder selection -> selected text -> frontmost browser tab -> clipboard URL.
       if (finderItems.length > 0) {
