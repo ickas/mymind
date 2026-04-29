@@ -49,6 +49,10 @@ support.
   cards using `GET /objects/:id/related` (Mastermind tier).
 - Edit Card (Cmd+E) — read existing content, edit title and markdown,
   save back via `PATCH /objects/:id` and `PUT /objects/:id/content`.
+- Manage Spaces (Cmd+Shift+S) — toggle the card in or out of any space
+  via `PUT`/`DELETE /spaces/:spaceId/objects/:objectId`.
+- Add Tags (Cmd+Shift+T) — append tags via `POST /objects/:id/tags`.
+  Removal still happens on the web app — the API doesn't expose it.
 - Copy as Markdown (Cmd+Shift+M) — pulls markdown from the API,
   falling back to `/convert` when prose is returned.
 - Pin (Cmd+Shift+P) and Unpin (Cmd+Ctrl+P).

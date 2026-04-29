@@ -34,6 +34,8 @@ On any card you can:
 - **Find Related** (Cmd+Shift+R) — semantically related cards.
   Requires mymind's Mastermind tier.
 - **Edit Card** (Cmd+E) — edit title and markdown body.
+- **Manage Spaces** (Cmd+Shift+S) — toggle the card in or out of any space.
+- **Add Tags** (Cmd+Shift+T) — append new tags. (Tag removal still has to happen on the web app — the API doesn't expose it.)
 - **Copy as Markdown** (Cmd+Shift+M).
 - **Pin / Unpin** (Cmd+Shift+P / Cmd+Ctrl+P).
 - **Open in Browser** (Cmd+Enter) and **Open in mymind** (Cmd+Shift+Enter).
