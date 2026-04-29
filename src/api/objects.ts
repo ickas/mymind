@@ -107,10 +107,37 @@ export async function getObjectContent(id: string, format: ContentFormat = "mark
   return response.text();
 }
 
-import { convert } from "./convert";
+import { convert, ConvertFormat } from "./convert";
 import { MyMindApiError } from "./client";
 
 const CONTENT_GET_FALLBACK_STATUSES = new Set([404, 405, 406]);
+
+interface ContentEnvelope {
+  type: string;
+  body: unknown;
+}
+
+function asEnvelope(value: unknown): ContentEnvelope | null {
+  if (
+    value &&
+    typeof value === "object" &&
+    "type" in value &&
+    "body" in value &&
+    typeof (value as { type: unknown }).type === "string"
+  ) {
+    return value as ContentEnvelope;
+  }
+  return null;
+}
+
+async function envelopeToMarkdown({ type, body }: ContentEnvelope): Promise<string> {
+  if (body == null) return "";
+  if (typeof body === "string") {
+    if (type === "text/markdown") return body;
+    return convert(body, type as ConvertFormat, "text/markdown");
+  }
+  return convert(JSON.stringify(body), "application/prose+json", "text/markdown");
+}
 
 export async function loadCardMarkdown(id: string): Promise<string> {
   try {
@@ -123,7 +150,9 @@ export async function loadCardMarkdown(id: string): Promise<string> {
   const obj = await getObject(id);
   if (obj.content == null) return "";
   if (typeof obj.content === "string") return obj.content;
-  return convert(JSON.stringify(obj.content), "application/prose+json", "text/markdown");
+  const envelope = asEnvelope(obj.content);
+  if (!envelope) return "";
+  return envelopeToMarkdown(envelope);
 }
 
 export async function updateObjectContent(
