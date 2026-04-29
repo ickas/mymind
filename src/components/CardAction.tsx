@@ -11,7 +11,7 @@ import {
   Clipboard,
 } from "@raycast/api";
 import { showFailureToast, useCachedPromise } from "@raycast/utils";
-import { deleteObject, loadCardMarkdown, MyMindObject } from "../api";
+import { deleteObject, loadCardMarkdown, MyMindObject, pinObject, unpinObject } from "../api";
 import AddNote from "../add-a-new-note";
 import { EditCardForm } from "./EditCardForm";
 import { RelatedView } from "./RelatedView";
@@ -92,6 +92,32 @@ export function CardActions({
     }
   };
 
+  const handlePin = async () => {
+    const toast = await showToast({ style: Toast.Style.Animated, title: "Pinning…" });
+    try {
+      await pinObject(object.id);
+      toast.style = Toast.Style.Success;
+      toast.title = "Pinned";
+      onChange?.();
+    } catch (error) {
+      toast.hide();
+      await showFailureToast(error, { title: "Failed to pin card" });
+    }
+  };
+
+  const handleUnpin = async () => {
+    const toast = await showToast({ style: Toast.Style.Animated, title: "Unpinning…" });
+    try {
+      await unpinObject(object.id);
+      toast.style = Toast.Style.Success;
+      toast.title = "Unpinned";
+      onChange?.();
+    } catch (error) {
+      toast.hide();
+      await showFailureToast(error, { title: "Failed to unpin card" });
+    }
+  };
+
   const handleCopyMarkdown = async () => {
     const toast = await showToast({ style: Toast.Style.Animated, title: "Fetching content…" });
     try {
@@ -146,6 +172,20 @@ export function CardActions({
           title="Copy Mymind URL"
           content={mymindUrl}
           shortcut={{ modifiers: ["cmd", "shift"], key: "l" }}
+        />
+      </ActionPanel.Section>
+      <ActionPanel.Section>
+        <Action
+          title="Pin Card"
+          icon={Icon.Pin}
+          onAction={handlePin}
+          shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
+        />
+        <Action
+          title="Unpin Card"
+          icon={Icon.PinDisabled}
+          onAction={handleUnpin}
+          shortcut={{ modifiers: ["cmd", "ctrl"], key: "p" }}
         />
       </ActionPanel.Section>
       <ActionPanel.Section>
