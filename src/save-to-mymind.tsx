@@ -1,4 +1,15 @@
-import { Action, ActionPanel, Clipboard, Form, popToRoot, showToast, Toast } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  BrowserExtension,
+  Clipboard,
+  Form,
+  getSelectedFinderItems,
+  getSelectedText,
+  popToRoot,
+  showToast,
+  Toast,
+} from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { readFile, stat } from "fs/promises";
 import { basename } from "path";
@@ -48,15 +59,63 @@ function guessContentType(filename: string): string {
   return map[ext] ?? "application/octet-stream";
 }
 
+async function detectActiveBrowserTab(): Promise<{ url?: string; title?: string } | null> {
+  try {
+    const tabs = await BrowserExtension.getTabs();
+    return tabs.find((t) => t.active) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default function Command() {
   const [text, setText] = useState("");
+  const [files, setFiles] = useState<string[]>([]);
+  const [title, setTitle] = useState("");
+  const [detected, setDetected] = useState<string | null>(null);
 
   useEffect(() => {
-    Clipboard.readText()
-      .then((clip) => {
-        if (clip && looksLikeUrl(clip)) setText(clip.trim());
-      })
-      .catch(() => undefined);
+    let cancelled = false;
+    (async () => {
+      const [finderRes, selectedRes, tabRes, clipRes] = await Promise.allSettled([
+        getSelectedFinderItems(),
+        getSelectedText(),
+        detectActiveBrowserTab(),
+        Clipboard.readText(),
+      ]);
+      if (cancelled) return;
+
+      const finderItems = finderRes.status === "fulfilled" ? finderRes.value : [];
+      const selected = selectedRes.status === "fulfilled" ? selectedRes.value?.trim() : "";
+      const tab = tabRes.status === "fulfilled" ? tabRes.value : null;
+      const clip = clipRes.status === "fulfilled" ? clipRes.value?.trim() : "";
+
+      // Priority: Finder selection -> selected text -> frontmost browser tab -> clipboard URL.
+      if (finderItems.length > 0) {
+        const paths = finderItems.map((i) => i.path);
+        setFiles((prev) => (prev.length === 0 ? paths : prev));
+        setDetected(`Detected: ${paths.length} file${paths.length === 1 ? "" : "s"} in Finder`);
+        return;
+      }
+      if (selected) {
+        setText((prev) => prev || selected);
+        setDetected("Detected: selected text");
+        return;
+      }
+      if (tab?.url) {
+        setText((prev) => prev || tab.url || "");
+        if (tab.title) setTitle((prev) => prev || tab.title || "");
+        setDetected(`Detected: active tab — ${tab.title ?? tab.url}`);
+        return;
+      }
+      if (clip && looksLikeUrl(clip)) {
+        setText((prev) => prev || clip);
+        setDetected("Detected: URL from clipboard");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleSubmit = async (values: FormValues) => {
@@ -89,7 +148,7 @@ export default function Command() {
         </ActionPanel>
       }
     >
-      <Form.Description text="Paste a URL, write markdown, or pick a file. Auto-detects what to do." />
+      <Form.Description text={detected ?? "Paste a URL, write markdown, or pick a file. Auto-detects what to do."} />
       <Form.TextArea
         id="text"
         title="URL or Note"
@@ -98,8 +157,15 @@ export default function Command() {
         onChange={setText}
         enableMarkdown
       />
-      <Form.FilePicker id="files" title="Files" allowMultipleSelection canChooseDirectories={false} />
-      <Form.TextField id="title" title="Title" placeholder="Optional" />
+      <Form.FilePicker
+        id="files"
+        title="Files"
+        allowMultipleSelection
+        canChooseDirectories={false}
+        value={files}
+        onChange={setFiles}
+      />
+      <Form.TextField id="title" title="Title" placeholder="Optional" value={title} onChange={setTitle} />
       <Form.TextField id="tags" title="Tags" placeholder="Comma-separated, optional" />
     </Form>
   );
