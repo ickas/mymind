@@ -13,7 +13,7 @@ import { listObjects, MyMindApiError, MyMindObject } from "./api";
 
 const MYMIND_WEB_URL = "https://access.mymind.com/everything";
 const MAX_VISIBLE = 8;
-const MAX_TITLE_CHARS = 60;
+const MAX_TITLE_CHARS = 40;
 
 function truncate(s: string, max: number): string {
   return s.length > max ? `${s.slice(0, max - 1)}…` : s;
