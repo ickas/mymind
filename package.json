@@ -45,6 +45,13 @@
       "subtitle": "mymind",
       "description": "Browse your mymind tags and the cards under each one",
       "mode": "view"
+    },
+    {
+      "name": "save-to-mymind",
+      "title": "Save to mymind",
+      "subtitle": "mymind",
+      "description": "Save a URL, note, or file to mymind. Auto-detects what to do based on what you provide.",
+      "mode": "view"
     }
   ],
   "dependencies": {

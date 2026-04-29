@@ -78,6 +78,28 @@ export async function createObject(input: CreateObjectInput): Promise<CreateObje
   return api.post<CreateObjectResponse>("/objects", buildCreateBody(input));
 }
 
+interface BlobMetadata {
+  title?: string;
+  tags?: string[];
+  spaceIds?: string[];
+}
+
+export async function createObjectFromBlob(
+  file: { bytes: Uint8Array; filename: string; contentType?: string },
+  meta: BlobMetadata = {},
+): Promise<CreateObjectResponse> {
+  const metadata: Record<string, unknown> = {};
+  if (meta.title) metadata.title = meta.title;
+  if (meta.tags?.length) metadata.tags = meta.tags.map((name) => ({ name }));
+  if (meta.spaceIds?.length) metadata.spaces = meta.spaceIds.map((id) => ({ id }));
+
+  const form = new FormData();
+  form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }), "metadata.json");
+  form.append("blob", new Blob([file.bytes], { type: file.contentType ?? "application/octet-stream" }), file.filename);
+
+  return api.post<CreateObjectResponse>("/objects", form);
+}
+
 export async function deleteObject(id: string): Promise<void> {
   await api.delete(`/objects/${encodeURIComponent(id)}`);
 }
