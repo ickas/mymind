@@ -13,6 +13,20 @@ import { listObjects, MyMindApiError, MyMindObject } from "./api";
 
 const MYMIND_WEB_URL = "https://access.mymind.com/everything";
 const MAX_VISIBLE = 8;
+const MAX_TITLE_CHARS = 60;
+
+function truncate(s: string, max: number): string {
+  return s.length > max ? `${s.slice(0, max - 1)}…` : s;
+}
+
+function hostnameOf(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return undefined;
+  }
+}
 
 function startOfToday(): Date {
   const d = new Date();
@@ -60,8 +74,9 @@ export default function Command() {
         {items.map((o) => (
           <MenuBarExtra.Item
             key={o.id}
-            title={o.title || "Untitled"}
-            subtitle={o.source?.url}
+            title={truncate(o.title || "Untitled", MAX_TITLE_CHARS)}
+            subtitle={hostnameOf(o.source?.url)}
+            tooltip={o.source?.url ?? o.title ?? undefined}
             onAction={() => open(o.source?.url ?? `${MYMIND_WEB_URL}/#${o.id}`)}
           />
         ))}
