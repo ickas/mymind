@@ -13,7 +13,9 @@ import {
 import { showFailureToast, useCachedPromise } from "@raycast/utils";
 import { deleteObject, loadCardMarkdown, MyMindObject, pinObject, unpinObject } from "../api";
 import AddNote from "../add-a-new-note";
+import { AddTagsForm } from "./AddTagsForm";
 import { EditCardForm } from "./EditCardForm";
+import { ManageSpacesView } from "./ManageSpacesView";
 import { RelatedView } from "./RelatedView";
 
 const MYMIND_WEB_URL = "https://access.mymind.com/everything";
@@ -152,6 +154,18 @@ export function CardActions({
           icon={Icon.Pencil}
           target={<EditCardForm object={object} onSaved={onChange} />}
           shortcut={{ modifiers: ["cmd"], key: "e" }}
+        />
+        <Action.Push
+          title="Manage Spaces"
+          icon={Icon.Folder}
+          target={<ManageSpacesView object={object} onChange={onChange} />}
+          shortcut={{ modifiers: ["cmd", "shift"], key: "s" }}
+        />
+        <Action.Push
+          title="Add Tags"
+          icon={Icon.Tag}
+          target={<AddTagsForm object={object} onChange={onChange} />}
+          shortcut={{ modifiers: ["cmd", "shift"], key: "t" }}
         />
         {object.source?.url && <Action.OpenInBrowser url={object.source.url} />}
         <Action.OpenInBrowser
