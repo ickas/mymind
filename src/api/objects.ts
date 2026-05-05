@@ -4,6 +4,8 @@ import { MyMindObject, MyMindObjectSchema, ObjectListSchema } from "./schemas";
 export interface ListObjectsOptions {
   id?: string | string[];
   q?: string;
+  spaceId?: string;
+  similarTo?: string;
   contentAs?: string;
   limit?: number;
   semantic?: boolean;
@@ -17,6 +19,8 @@ export async function listObjects(opts: ListObjectsOptions = {}): Promise<MyMind
     query: {
       id: opts.id,
       q: opts.q,
+      spaceId: opts.spaceId,
+      similarTo: opts.similarTo,
       contentAs: opts.contentAs,
       limit: opts.limit,
       semantic: opts.semantic,
@@ -26,18 +30,6 @@ export async function listObjects(opts: ListObjectsOptions = {}): Promise<MyMind
     signal: opts.signal,
   });
   return ObjectListSchema.parse(data);
-}
-
-const OBJECTS_BY_IDS_BATCH = 25;
-
-export async function getObjectsByIds(ids: string[], signal?: AbortSignal): Promise<MyMindObject[]> {
-  if (ids.length === 0) return [];
-  const chunks: string[][] = [];
-  for (let i = 0; i < ids.length; i += OBJECTS_BY_IDS_BATCH) {
-    chunks.push(ids.slice(i, i + OBJECTS_BY_IDS_BATCH));
-  }
-  const batches = await Promise.all(chunks.map((chunk) => listObjects({ id: chunk, limit: chunk.length, signal })));
-  return batches.flat();
 }
 
 export interface GetObjectOptions {
@@ -121,6 +113,14 @@ export async function restoreObject(id: string): Promise<void> {
 export async function addTagsToObject(id: string, tags: string[]): Promise<void> {
   if (!tags.length) return;
   await api.post(
+    `/objects/${encodeURIComponent(id)}/tags`,
+    tags.map((name) => ({ name })),
+  );
+}
+
+export async function removeTagsFromObject(id: string, tags: string[]): Promise<void> {
+  if (!tags.length) return;
+  await api.delete(
     `/objects/${encodeURIComponent(id)}/tags`,
     tags.map((name) => ({ name })),
   );

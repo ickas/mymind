@@ -67,13 +67,6 @@ export type MyMindObject = z.infer<typeof MyMindObjectSchema>;
 
 export const ObjectListSchema = z.array(MyMindObjectSchema);
 
-export const SearchResultSchema = z.object({
-  id: z.string(),
-  score: z.number(),
-  semanticScore: z.number().nullish(),
-});
-export type SearchResult = z.infer<typeof SearchResultSchema>;
-
 export const SpaceObjectRefSchema = z.object({
   id: z.string(),
 });
