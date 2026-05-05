@@ -30,11 +30,12 @@ That's it. Run **Search My Mind** to confirm the connection.
 
 On any card you can:
 
-- **Show Details** (Enter) — markdown body + metadata sidebar.
+- **Show Details** (Enter) — markdown body + metadata sidebar, with the card's summary, notes, and dominant color when present.
 - **Find Related** (Cmd+Shift+R) — semantically related cards.
-- **Edit Card** (Cmd+E) — edit title and markdown body.
+- **Edit Card** (Cmd+E) — edit title, summary, and markdown body.
 - **Manage Spaces** (Cmd+Shift+S) — toggle the card in or out of any space.
 - **Manage Tags** (Cmd+Shift+T) — add new tags or deselect existing ones to remove.
+- **Manage Notes** (Cmd+Shift+N) — add, edit, or delete notes attached to the card.
 - **Copy as Markdown** (Cmd+Shift+M).
 - **Pin / Unpin** (Cmd+Shift+P / Cmd+Ctrl+P).
 - **Open in Browser** (Cmd+Enter) and **Open in mymind** (Cmd+Shift+Enter).
