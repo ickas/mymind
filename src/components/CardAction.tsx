@@ -11,7 +11,7 @@ import {
   Clipboard,
 } from "@raycast/api";
 import { showFailureToast, useCachedPromise } from "@raycast/utils";
-import { deleteObject, loadCardMarkdown, MyMindObject, pinObject, unpinObject } from "../api";
+import { deleteObject, loadCardMarkdown, MyMindObject, ObjectNote, pinObject, unpinObject } from "../api";
 import AddNote from "../add-a-new-note";
 import { safeHostname } from "../utils";
 import { ManageTagsForm } from "./ManageTagsForm";
@@ -21,6 +21,16 @@ import { RelatedView } from "./RelatedView";
 
 const MYMIND_WEB_URL = "https://access.mymind.com/everything";
 
+function noteToMarkdown(note: ObjectNote): string {
+  if (note.content == null) return "";
+  if (typeof note.content === "string") return note.content;
+  if (typeof note.content === "object") {
+    const body = (note.content as { body?: unknown }).body;
+    if (typeof body === "string") return body;
+  }
+  return "";
+}
+
 function CardDetail({ object, onChange }: { object: MyMindObject; onChange?: () => void }) {
   const {
     isLoading,
@@ -29,21 +39,27 @@ function CardDetail({ object, onChange }: { object: MyMindObject; onChange?: () 
     revalidate,
   } = useCachedPromise(loadCardMarkdown, [object.id]);
   const heading = object.title ? `# ${object.title}\n\n` : "";
-  const body = error
+  const summarySection = object.summary?.trim() ? `> ${object.summary.trim()}\n\n` : "";
+  const mainBody = error
     ? `> Couldn't load body: ${error.message}`
     : !isLoading && !markdown.trim()
       ? "_The mymind API doesn't expose the reader body for this card. Press ⌘↵ to open the original._"
       : markdown;
+  const notes = (object.notes ?? []).map(noteToMarkdown).filter((n) => n.trim().length > 0);
+  const notesSection =
+    notes.length > 0 ? `\n\n---\n\n## Notes\n\n${notes.map((n) => `- ${n.replace(/\n/g, "\n  ")}`).join("\n\n")}` : "";
 
   const handleChange = () => {
     revalidate();
     onChange?.();
   };
 
+  const dominantColor = object.blob?.palette?.dominantColor ?? null;
+
   return (
     <Detail
       isLoading={isLoading}
-      markdown={heading + body}
+      markdown={heading + summarySection + mainBody + notesSection}
       metadata={
         <Detail.Metadata>
           <Detail.Metadata.Label title="Created" text={new Date(object.created).toLocaleString()} />
@@ -61,6 +77,11 @@ function CardDetail({ object, onChange }: { object: MyMindObject; onChange?: () 
               {Array.from(new Set(object.tags.map((t) => t.name))).map((name) => (
                 <Detail.Metadata.TagList.Item key={name} text={name} />
               ))}
+            </Detail.Metadata.TagList>
+          )}
+          {dominantColor && (
+            <Detail.Metadata.TagList title="Color">
+              <Detail.Metadata.TagList.Item text={dominantColor} color={dominantColor} />
             </Detail.Metadata.TagList>
           )}
         </Detail.Metadata>
