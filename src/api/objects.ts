@@ -138,6 +138,34 @@ export async function updateObjectTitle(id: string, title: string): Promise<void
   await api.patch(`/objects/${encodeURIComponent(id)}`, { title });
 }
 
+export interface UpdateObjectFields {
+  title?: string;
+  summary?: string | null;
+}
+
+export async function updateObject(id: string, fields: UpdateObjectFields): Promise<void> {
+  if (Object.keys(fields).length === 0) return;
+  await api.patch(`/objects/${encodeURIComponent(id)}`, fields);
+}
+
+export async function addNoteToObject(objectId: string, markdown: string): Promise<void> {
+  await api.post(`/objects/${encodeURIComponent(objectId)}/notes`, markdown, {
+    contentType: "text/markdown",
+  });
+}
+
+export async function updateNote(objectId: string, noteId: string, markdown: string): Promise<void> {
+  await api.put(
+    `/objects/${encodeURIComponent(objectId)}/notes/${encodeURIComponent(noteId)}`,
+    markdown,
+    { contentType: "text/markdown" },
+  );
+}
+
+export async function deleteNote(objectId: string, noteId: string): Promise<void> {
+  await api.delete(`/objects/${encodeURIComponent(objectId)}/notes/${encodeURIComponent(noteId)}`);
+}
+
 export async function loadCardMarkdown(id: string, signal?: AbortSignal): Promise<string> {
   const obj = await getObject(id, { contentAs: "text/markdown", signal });
   return extractMarkdown(obj.content);
