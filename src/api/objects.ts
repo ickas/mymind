@@ -134,10 +134,6 @@ export async function unpinObject(id: string): Promise<void> {
   await api.delete(`/objects/${encodeURIComponent(id)}/pin`);
 }
 
-export async function updateObjectTitle(id: string, title: string): Promise<void> {
-  await api.patch(`/objects/${encodeURIComponent(id)}`, { title });
-}
-
 export interface UpdateObjectFields {
   title?: string;
   summary?: string | null;
