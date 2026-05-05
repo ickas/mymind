@@ -34,7 +34,7 @@ On any card you can:
 - **Find Related** (Cmd+Shift+R) — semantically related cards.
 - **Edit Card** (Cmd+E) — edit title and markdown body.
 - **Manage Spaces** (Cmd+Shift+S) — toggle the card in or out of any space.
-- **Add Tags** (Cmd+Shift+T) — append new tags. (Tag removal still has to happen on the web app — the API doesn't expose it.)
+- **Manage Tags** (Cmd+Shift+T) — add new tags or deselect existing ones to remove.
 - **Copy as Markdown** (Cmd+Shift+M).
 - **Pin / Unpin** (Cmd+Shift+P / Cmd+Ctrl+P).
 - **Open in Browser** (Cmd+Enter) and **Open in mymind** (Cmd+Shift+Enter).
@@ -66,8 +66,10 @@ no Raycast UI opens.
 - **Recently Deleted** isn't yet exposed by the API, so there's no
   command to browse the trash. Restore is implemented internally and
   will surface as soon as listing is available.
-- **Tag removal** still has to happen on the web app — the API
-  exposes adding tags but no delete counterpart.
+- **Article reader body** isn't returned by the API for `entityType:
+  "Article"` cards (mymind has it in their reader, but neither
+  `/content` nor `?contentAs=text/markdown` returns it). Show Details
+  falls back to a hint pointing at the source URL.
 
 ## Migrating from 1.x
 
