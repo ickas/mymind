@@ -14,7 +14,7 @@ import { showFailureToast, useCachedPromise } from "@raycast/utils";
 import { deleteObject, loadCardMarkdown, MyMindObject, pinObject, unpinObject } from "../api";
 import AddNote from "../add-a-new-note";
 import { safeHostname } from "../utils";
-import { AddTagsForm } from "./AddTagsForm";
+import { ManageTagsForm } from "./ManageTagsForm";
 import { EditCardForm } from "./EditCardForm";
 import { ManageSpacesView } from "./ManageSpacesView";
 import { RelatedView } from "./RelatedView";
@@ -165,9 +165,9 @@ export function CardActions({
           shortcut={{ modifiers: ["cmd", "shift"], key: "s" }}
         />
         <Action.Push
-          title="Add Tags"
+          title="Manage Tags"
           icon={Icon.Tag}
-          target={<AddTagsForm object={object} onChange={onChange} />}
+          target={<ManageTagsForm object={object} onChange={onChange} />}
           shortcut={{ modifiers: ["cmd", "shift"], key: "t" }}
         />
         {object.source?.url && <Action.OpenInBrowser url={object.source.url} />}
