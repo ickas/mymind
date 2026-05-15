@@ -16,6 +16,7 @@ import AddNote from "../add-a-new-note";
 import { safeHostname } from "../utils";
 import { ManageTagsForm } from "./ManageTagsForm";
 import { EditCardForm } from "./EditCardForm";
+import { ManageLinksView } from "./ManageLinksView";
 import { ManageNotesView } from "./ManageNotesView";
 import { ManageSpacesView } from "./ManageSpacesView";
 import { RelatedView } from "./RelatedView";
@@ -192,6 +193,12 @@ export function CardActions({
           icon={Icon.Document}
           target={<ManageNotesView object={object} onChange={onChange} />}
           shortcut={{ modifiers: ["cmd", "shift"], key: "n" }}
+        />
+        <Action.Push
+          title="Manage Links"
+          icon={Icon.Link}
+          target={<ManageLinksView object={object} onChange={onChange} />}
+          shortcut={{ modifiers: ["cmd", "shift"], key: "k" }}
         />
         {object.source?.url && <Action.OpenInBrowser url={object.source.url} />}
         <Action.OpenInBrowser
