@@ -76,6 +76,19 @@ function CardDetail({ object, onChange }: { object: MyMindObject; onChange?: () 
               ))}
             </Detail.Metadata.TagList>
           )}
+          {object.entities.length > 0 && (
+            <Detail.Metadata.TagList title="Entities">
+              {Array.from(
+                new Map(
+                  object.entities
+                    .map((e) => [e.name?.trim() ?? e.id ?? "", e] as const)
+                    .filter(([key]) => key.length > 0),
+                ).keys(),
+              ).map((name) => (
+                <Detail.Metadata.TagList.Item key={name} text={name} />
+              ))}
+            </Detail.Metadata.TagList>
+          )}
           {dominantColor && (
             <Detail.Metadata.TagList title="Color">
               <Detail.Metadata.TagList.Item text={dominantColor} color={dominantColor} />
