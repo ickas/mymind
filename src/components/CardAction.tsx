@@ -52,6 +52,7 @@ function CardDetail({ object, onChange }: { object: MyMindObject; onChange?: () 
   };
 
   const dominantColor = object.blob?.palette?.dominantColor ?? null;
+  const fileName = object.blob?.name?.trim() || null;
 
   return (
     <Detail
@@ -62,6 +63,7 @@ function CardDetail({ object, onChange }: { object: MyMindObject; onChange?: () 
           <Detail.Metadata.Label title="Created" text={new Date(object.created).toLocaleString()} />
           <Detail.Metadata.Label title="Modified" text={new Date(object.modified).toLocaleString()} />
           {object.entityType && <Detail.Metadata.Label title="Type" text={object.entityType} />}
+          {fileName && <Detail.Metadata.Label title="File" text={fileName} />}
           {object.source?.url && (
             <Detail.Metadata.Link
               title="Source"

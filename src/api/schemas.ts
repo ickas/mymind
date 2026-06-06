@@ -53,6 +53,7 @@ export type Palette = z.infer<typeof PaletteSchema>;
 export const BlobReferenceSchema = z
   .object({
     url: z.string().nullish(),
+    name: z.string().nullish(),
     mime: z.string().nullish(),
     size: z.number().nullish(),
     palette: PaletteSchema.nullish(),
