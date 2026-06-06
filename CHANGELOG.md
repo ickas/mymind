@@ -21,7 +21,9 @@ support.
   `GET /objects?q=…&semantic=true&rerank=true`, returning hydrated
   objects in one round-trip. Empty query falls back to recency
   browsing. Defaults to a 5-column **Grid** with a Grid/List toggle
-  persisted across runs.
+  persisted across runs. Query syntax is passed through verbatim,
+  including the API 0.6.0 date-range filters (`created:`, `bumped:`,
+  `published:`) that match a year, month, or instant + duration.
 - **Add a New Note** — markdown notes via `POST /objects`, no more
   client-side prose conversion.
 - **Save to mymind** — one form, three behaviors auto-routed from your
@@ -47,7 +49,8 @@ support.
 - Show Details (Enter) with metadata sidebar and the markdown body
   rendered inline. Surfaces summary as a blockquote above the body,
   appends a Notes section after, lists extracted `entities` as tags,
-  and shows dominant color from `blob.palette` as a tag.
+  shows dominant color from `blob.palette` as a tag, and shows the
+  original file name from `blob.name` (API 0.6.0) for uploads.
 - Manage Notes (Cmd+Shift+N) — add (`POST`), edit (`PUT`), and delete
   (`DELETE`) notes via `/objects/:id/notes/:noteId`.
 - Manage Links (Cmd+Shift+K) — list the cards linked to this one via
