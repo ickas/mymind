@@ -26,6 +26,21 @@ That's it. Run **Search My Mind** to confirm the connection.
 | **Browse Tags** | List your tags; drill in to see all cards under a tag. |
 | **mymind Menu Bar** | Count of today's saves in the menu bar with a quick-capture shortcut. Enable from Raycast Preferences → Extensions → mymind → Menu Bar. |
 
+### Query syntax
+
+**Search My Mind** passes mymind's query language straight through, so you
+can combine free-text with structured filters:
+
+- `tag:foo` — cards with a tag (quote multi-word tags: `tag:"to read"`).
+- `type:Note` — filter by card type (`Note`, `Image`, `Link`, …).
+- `domain:nytimes.com` — cards saved from a domain.
+- `"a phrase"` — exact phrase match.
+- `-exclude` — exclude a term.
+- **Date ranges** (`created:`, `bumped:`, `published:`) — match a year
+  (`created:2026`), a month (`bumped:2025-02`), or an instant plus a
+  duration. For example `created:2026 type:Note` finds notes created
+  this year.
+
 ### Card actions
 
 On any card you can:
